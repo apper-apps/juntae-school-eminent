@@ -1,14 +1,37 @@
-import { toast } from 'react-toastify';
+import { toast } from "react-toastify";
+import React from "react";
+import Error from "@/components/ui/Error";
 
 class UsersExtService {
   constructor() {
     // Initialize ApperClient with Project ID and Public Key
-    const { ApperClient } = window.ApperSDK;
+const { ApperClient } = window.ApperSDK;
     this.apperClient = new ApperClient({
       apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
       apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
     });
     this.tableName = 'usersext';
+  }
+
+  // Get current user for permission checks
+  async getCurrentUser() {
+    try {
+      const { ApperUI } = window.ApperSDK;
+      const currentUser = ApperUI.getCurrentUser();
+      if (currentUser && currentUser.userId) {
+        return await this.findByAuthId(currentUser.userId);
+      }
+      return null;
+    } catch (error) {
+      console.error('Error getting current user:', error);
+      return null;
+    }
+  }
+
+  // Check if current user has admin permissions
+  async checkAdminPermission() {
+    const currentUser = await this.getCurrentUser();
+    return currentUser && currentUser.is_admin === true;
   }
 
   async getAll() {
@@ -119,6 +142,14 @@ class UsersExtService {
   async create(userData) {
     try {
       // Only include Updateable fields based on schema
+// Check WRITE permissions - only admin users can create records
+      const hasAdminPermission = await this.checkAdminPermission();
+      if (!hasAdminPermission) {
+        const error = new Error('Write permission denied. Only admin users can create records.');
+        toast.error('생성 권한이 없습니다. 관리자만 사용자를 생성할 수 있습니다.');
+        throw error;
+      }
+
       const params = {
         records: [{
           Name: userData.email || 'User', // Use email as Name
@@ -170,8 +201,16 @@ class UsersExtService {
     return null;
   }
 
-  async update(id, updateData) {
+async update(id, updateData) {
     try {
+      // Check WRITE permissions - only admin users can modify records
+      const hasAdminPermission = await this.checkAdminPermission();
+      if (!hasAdminPermission) {
+        const error = new Error('Write permission denied. Only admin users can modify records.');
+        toast.error('수정 권한이 없습니다. 관리자만 사용자 정보를 수정할 수 있습니다.');
+        throw error;
+      }
+
       // Only include Updateable fields
       const params = {
         records: [{
@@ -210,7 +249,7 @@ class UsersExtService {
           });
         }
 
-        if (successfulUpdates.length > 0) {
+if (successfulUpdates.length > 0) {
           toast.success('저장 완료');
           return successfulUpdates[0].data;
         }
@@ -229,10 +268,18 @@ class UsersExtService {
 
   async delete(id) {
     try {
+      // Check WRITE permissions - only admin users can delete records
+      const hasAdminPermission = await this.checkAdminPermission();
+      if (!hasAdminPermission) {
+        const error = new Error('Write permission denied. Only admin users can delete records.');
+        toast.error('삭제 권한이 없습니다. 관리자만 사용자를 삭제할 수 있습니다.');
+        throw error;
+      }
+
       const params = {
         RecordIds: [parseInt(id)]
       };
-
+      
       const response = await this.apperClient.deleteRecord(this.tableName, params);
       
       if (!response.success) {
@@ -288,7 +335,7 @@ async ensureUserRecord(currentUser) {
       }
 
       // Check if user already exists
-      const existingUser = await this.findByAuthId(currentUser.id);
+      const existingUser = await this.findByAuthId(userId);
       
       if (existingUser) {
         return existingUser;
