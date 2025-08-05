@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes, useNavigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import React, { createContext, useEffect, useState } from "react";
 import { Provider, useDispatch, useSelector } from "react-redux";
+import { usersExtService } from "@/services/usersExtService";
 import Layout from "@/components/organisms/Layout";
 import MoneyInsightPage from "@/components/pages/MoneyInsightPage";
 import MasterPage from "@/components/pages/MasterPage";
@@ -18,6 +19,7 @@ import Callback from "@/components/pages/Callback";
 import ErrorPage from "@/components/pages/ErrorPage";
 import Signup from "@/components/pages/Signup";
 import PostDetailPage from "@/components/pages/PostDetailPage";
+import AdminUsersPage from "@/components/pages/AdminUsersPage";
 import { clearUser, setUser } from "@/store/userSlice";
 import { store } from "@/store/store";
 import { AuthProvider } from "@/hooks/useAuth";
@@ -46,9 +48,9 @@ const navigate = useNavigate();
     ApperUI.setup(client, {
       target: '#authentication',
       clientId: import.meta.env.VITE_APPER_PROJECT_ID,
-      view: 'both',
-      onSuccess: function (user) {
-        setIsInitialized(true);
+view: 'both',
+onSuccess: async function (user) {
+setIsInitialized(true);
         // CRITICAL: This exact currentPath logic must be preserved in all implementations
         // DO NOT simplify or modify this pattern as it ensures proper redirection flow
         let currentPath = window.location.pathname + window.location.search;
@@ -70,8 +72,15 @@ const navigate = useNavigate();
           } else {
             navigate('/');
           }
-          // Store user information in Redux
+// Store user information in Redux
           dispatch(setUser(JSON.parse(JSON.stringify(user))));
+          
+          // Bootstrap logic: Ensure UsersExt record exists
+          try {
+            await usersExtService.ensureUserRecord(user);
+          } catch (error) {
+            console.error('Error bootstrapping user record:', error);
+          }
         } else {
           // User is not authenticated
 // Allow access to homepage without authentication
@@ -141,8 +150,9 @@ const navigate = useNavigate();
             <Route path="/money-insight" element={<MoneyInsightPage />} />
             <Route path="/money-insight/:id" element={<PostDetailPage />} />
             <Route path="/reviews" element={<ReviewsPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
+<Route path="/profile" element={<ProfilePage />} />
             <Route path="/lectures" element={<LecturesPage />} />
+            <Route path="/admin/users-ext" element={<AdminUsersPage />} />
           </Routes>
         </Layout>
         <ToastContainer

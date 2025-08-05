@@ -1,23 +1,27 @@
-import { useState } from "react";
-import { useAuth } from "@/hooks/useAuth";
+import React, { useState } from "react";
+import { useUserRole } from "@/hooks/useUserRole";
 import ApperIcon from "@/components/ApperIcon";
-import Button from "@/components/atoms/Button";
-import NavItem from "@/components/molecules/NavItem";
 import Logo from "@/components/molecules/Logo";
-import MobileMenu from "@/components/organisms/MobileMenu";
+import NavItem from "@/components/molecules/NavItem";
 import AuthModal from "@/components/organisms/AuthModal";
+import MobileMenu from "@/components/organisms/MobileMenu";
+import Button from "@/components/atoms/Button";
+import { useAuth } from "@/hooks/useAuth";
 const Header = () => {
   const { user, openAuthModal, logout } = useAuth();
+  const { is_admin } = useUserRole();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
-const navItems = [
+  const navItems = [
     { path: "/", label: "홈" },
     { path: "/membership", label: "멤버십 영상실" },
     { path: "/master", label: "마스터 과정" },
     { path: "/money-insight", label: "머니 인사이트" },
     { path: "/lectures", label: "강의 관리" },
     { path: "/reviews", label: "리뷰 · 후기" },
-    { path: "/profile", label: "프로필" }
+    { path: "/profile", label: "프로필" },
+    ...(is_admin ? [{ path: "/admin/users-ext", label: "회원 등급 관리" }] : [])
   ];
 
   const toggleMobileMenu = () => {
