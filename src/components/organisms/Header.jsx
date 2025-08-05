@@ -10,11 +10,12 @@ const Header = () => {
   const { user, openAuthModal, logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const navItems = [
+const navItems = [
     { path: "/", label: "홈" },
     { path: "/membership", label: "멤버십 영상실" },
     { path: "/master", label: "마스터 과정" },
     { path: "/money-insight", label: "머니 인사이트" },
+    { path: "/lectures", label: "강의 관리" },
     { path: "/reviews", label: "리뷰 · 후기" },
     { path: "/profile", label: "프로필" }
   ];

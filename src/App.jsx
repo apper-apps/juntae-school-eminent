@@ -11,6 +11,7 @@ import HomePage from "@/components/pages/HomePage";
 import MembershipPage from "@/components/pages/MembershipPage";
 import ReviewsPage from "@/components/pages/ReviewsPage";
 import ProfilePage from "@/components/pages/ProfilePage";
+import LecturesPage from "@/components/pages/LecturesPage";
 function App() {
   return (
     <BrowserRouter>
@@ -23,7 +24,8 @@ function App() {
               <Route path="/master" element={<MasterPage />} />
               <Route path="/money-insight" element={<MoneyInsightPage />} />
               <Route path="/reviews" element={<ReviewsPage />} />
-              <Route path="/profile" element={<ProfilePage />} />
+<Route path="/profile" element={<ProfilePage />} />
+              <Route path="/lectures" element={<LecturesPage />} />
             </Routes>
           </Layout>
           <AuthModal />
