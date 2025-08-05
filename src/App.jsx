@@ -3,30 +3,30 @@ import { BrowserRouter, Route, Routes, useNavigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import React, { createContext, useEffect, useState } from "react";
 import { Provider, useDispatch, useSelector } from "react-redux";
-import { store } from "./store/store";
-import { clearUser, setUser } from "./store/userSlice";
-import Login from "@/components/pages/Login";
-import Signup from "@/components/pages/Signup";
-import Callback from "@/components/pages/Callback";
-import ErrorPage from "@/components/pages/ErrorPage";
-import ResetPassword from "@/components/pages/ResetPassword";
-import PromptPassword from "@/components/pages/PromptPassword";
+import { AuthProvider } from "@/hooks/useAuth";
 import Layout from "@/components/organisms/Layout";
 import MoneyInsightPage from "@/components/pages/MoneyInsightPage";
 import MasterPage from "@/components/pages/MasterPage";
 import HomePage from "@/components/pages/HomePage";
+import Login from "@/components/pages/Login";
+import PromptPassword from "@/components/pages/PromptPassword";
 import MembershipPage from "@/components/pages/MembershipPage";
 import LecturesPage from "@/components/pages/LecturesPage";
+import ResetPassword from "@/components/pages/ResetPassword";
 import ProfilePage from "@/components/pages/ProfilePage";
 import ReviewsPage from "@/components/pages/ReviewsPage";
+import Callback from "@/components/pages/Callback";
+import ErrorPage from "@/components/pages/ErrorPage";
+import Signup from "@/components/pages/Signup";
 import PostDetailPage from "@/components/pages/PostDetailPage";
-import { AuthProvider } from "@/hooks/useAuth";
+import { clearUser, setUser } from "@/store/userSlice";
+import { store } from "@/store/store";
 
 // Create auth context
 export const AuthContext = createContext(null);
 
 function AppContent() {
-  const navigate = useNavigate();
+const navigate = useNavigate();
   const dispatch = useDispatch();
   const [isInitialized, setIsInitialized] = useState(false);
   
@@ -125,7 +125,8 @@ function AppContent() {
   }
   
   return (
-    <AuthContext.Provider value={authMethods}>
+<AuthProvider>
+      <AuthContext.Provider value={authMethods}>
       <div className="min-h-screen bg-slate-950">
         <Layout>
           <Routes>
