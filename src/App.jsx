@@ -3,7 +3,6 @@ import { BrowserRouter, Route, Routes, useNavigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import React, { createContext, useEffect, useState } from "react";
 import { Provider, useDispatch, useSelector } from "react-redux";
-import { AuthProvider } from "@/hooks/useAuth";
 import Layout from "@/components/organisms/Layout";
 import MoneyInsightPage from "@/components/pages/MoneyInsightPage";
 import MasterPage from "@/components/pages/MasterPage";
@@ -21,6 +20,7 @@ import Signup from "@/components/pages/Signup";
 import PostDetailPage from "@/components/pages/PostDetailPage";
 import { clearUser, setUser } from "@/store/userSlice";
 import { store } from "@/store/store";
+import { AuthProvider } from "@/hooks/useAuth";
 
 // Create auth context
 export const AuthContext = createContext(null);
@@ -158,8 +158,9 @@ const navigate = useNavigate();
           pauseOnHover
           theme="dark"
         />
-      </div>
+</div>
     </AuthContext.Provider>
+    </AuthProvider>
   );
 }
 
