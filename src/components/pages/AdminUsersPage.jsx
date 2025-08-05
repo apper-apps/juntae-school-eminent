@@ -132,7 +132,7 @@ const AdminUsersPage = () => {
             }
           />
         ) : (
-          <div className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
+<div className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-slate-700/50">
@@ -156,7 +156,7 @@ const AdminUsersPage = () => {
                           </div>
                           <div>
                             <div className="text-sm font-medium text-white">{user.email}</div>
-                            <div className="text-xs text-slate-400">ID: {user.auth_id}</div>
+                            <div className="text-xs text-slate-400">ID: {user.id}</div>
                           </div>
                         </div>
                       </td>

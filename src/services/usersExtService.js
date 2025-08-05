@@ -18,7 +18,7 @@ const { ApperClient } = window.ApperSDK;
     try {
       const { ApperUI } = window.ApperSDK;
       const currentUser = ApperUI.getCurrentUser();
-      if (currentUser && currentUser.userId) {
+if (currentUser && currentUser.userId) {
         return await this.findByAuthId(currentUser.userId);
       }
       return null;
@@ -37,8 +37,8 @@ const { ApperClient } = window.ApperSDK;
   async getAll() {
     try {
       const params = {
-        fields: [
-          { field: { Name: "auth_id" } },
+fields: [
+          { field: { Name: "id" } },
           { field: { Name: "email" } },
           { field: { Name: "role" } },
           { field: { Name: "is_admin" } },
@@ -77,8 +77,8 @@ const { ApperClient } = window.ApperSDK;
   async getById(id) {
     try {
       const params = {
-        fields: [
-          { field: { Name: "auth_id" } },
+fields: [
+          { field: { Name: "id" } },
           { field: { Name: "email" } },
           { field: { Name: "role" } },
           { field: { Name: "is_admin" } },
@@ -105,11 +105,11 @@ const { ApperClient } = window.ApperSDK;
     }
   }
 
-  async findByAuthId(authId) {
+async findByAuthId(authId) {
     try {
       const params = {
         fields: [
-          { field: { Name: "auth_id" } },
+          { field: { Name: "id" } },
           { field: { Name: "email" } },
           { field: { Name: "role" } },
           { field: { Name: "is_admin" } },
@@ -118,7 +118,7 @@ const { ApperClient } = window.ApperSDK;
         ],
         where: [
           {
-            FieldName: "auth_id",
+            FieldName: "id",
             Operator: "EqualTo",
             Values: [authId]
           }
@@ -134,7 +134,7 @@ const { ApperClient } = window.ApperSDK;
 
       return response.data && response.data.length > 0 ? response.data[0] : null;
     } catch (error) {
-      console.error('Error finding user by auth_id:', error);
+      console.error('Error finding user by id:', error);
       return null;
     }
   }
@@ -152,8 +152,8 @@ const { ApperClient } = window.ApperSDK;
 
       const params = {
         records: [{
-          Name: userData.email || 'User', // Use email as Name
-          auth_id: userData.auth_id,
+Name: userData.email || 'User', // Use email as Name
+          id: userData.id,
           email: userData.email,
           role: userData.role || "free",
           is_admin: userData.is_admin || false,
@@ -347,7 +347,7 @@ async ensureUserRecord(currentUser) {
 
       // Create new user record
 const newUserData = {
-        auth_id: userId,
+        id: userId,
         email: userEmail,
         role: "free",
         is_admin: isFirstUser, // First user becomes admin
