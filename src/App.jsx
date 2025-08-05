@@ -1,15 +1,16 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
+import { AuthProvider } from "@/hooks/useAuth";
+import React from "react";
+import "@/index.css";
+import AuthModal from "@/components/organisms/AuthModal";
 import Layout from "@/components/organisms/Layout";
+import MoneyInsightPage from "@/components/pages/MoneyInsightPage";
+import MasterPage from "@/components/pages/MasterPage";
 import HomePage from "@/components/pages/HomePage";
 import MembershipPage from "@/components/pages/MembershipPage";
-import MasterPage from "@/components/pages/MasterPage";
-import MoneyInsightPage from "@/components/pages/MoneyInsightPage";
 import ReviewsPage from "@/components/pages/ReviewsPage";
 import ProfilePage from "@/components/pages/ProfilePage";
-import AuthModal from "@/components/organisms/AuthModal";
-import { AuthProvider } from "@/hooks/useAuth";
-
 function App() {
   return (
     <BrowserRouter>
