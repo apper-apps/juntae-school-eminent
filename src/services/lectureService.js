@@ -104,6 +104,18 @@ getByType: (type) => {
                      .sort((a, b) => a.sort_order - b.sort_order);
   },
 
+  getMasterLectures: (courseType, userCohort) => {
+    if (courseType === "공통 과정") {
+      return lectureData.filter(lecture => lecture.type === "master_common")
+                       .sort((a, b) => a.sort_order - b.sort_order);
+    } else {
+      const numCohort = parseInt(userCohort) || 0;
+      return lectureData.filter(lecture => 
+        lecture.type === "master" && lecture.cohort_number === numCohort
+      ).sort((a, b) => a.sort_order - b.sort_order);
+    }
+  },
+
   getByCohort: (cohortNumber) => {
     const numCohort = parseInt(cohortNumber);
     return lectureData.filter(lecture => lecture.cohort_number === numCohort)
