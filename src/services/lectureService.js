@@ -99,7 +99,7 @@ export const lectureService = {
     return deletedLecture;
   },
 
-  getByType: (type) => {
+getByType: (type) => {
     return lectureData.filter(lecture => lecture.type === type)
                      .sort((a, b) => a.sort_order - b.sort_order);
   },
@@ -108,6 +108,13 @@ export const lectureService = {
     const numCohort = parseInt(cohortNumber);
     return lectureData.filter(lecture => lecture.cohort_number === numCohort)
                      .sort((a, b) => a.sort_order - b.sort_order);
+  },
+
+  getByMembershipCohort: (cohortNumber) => {
+    const numCohort = parseInt(cohortNumber);
+    return lectureData.filter(lecture => 
+      lecture.type === 'membership' && lecture.cohort_number <= numCohort
+    ).sort((a, b) => a.sort_order - b.sort_order);
   }
 };
 
