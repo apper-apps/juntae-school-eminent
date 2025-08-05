@@ -5,7 +5,7 @@ import Button from "@/components/atoms/Button";
 import NavItem from "@/components/molecules/NavItem";
 import Logo from "@/components/molecules/Logo";
 import MobileMenu from "@/components/organisms/MobileMenu";
-
+import AuthModal from "@/components/organisms/AuthModal";
 const Header = () => {
   const { user, openAuthModal, logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -74,8 +74,11 @@ const navItems = [
       <MobileMenu 
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}
-        navItems={navItems}
+navItems={navItems}
       />
+
+      {/* Auth Modal */}
+      <AuthModal />
     </>
   );
 };

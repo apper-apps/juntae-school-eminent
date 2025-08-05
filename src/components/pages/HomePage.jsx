@@ -7,8 +7,7 @@ import Card from "@/components/atoms/Card";
 import { useAuth } from "@/hooks/useAuth";
 
 const HomePage = () => {
-const { user } = useSelector((state) => state.user);
-
+  const { user } = useAuth();
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900">
       {/* Hero Section */}
@@ -103,30 +102,31 @@ const { user } = useSelector((state) => state.user);
       </section>
 
       {/* Welcome Message for Logged In Users */}
+{/* Welcome Message for Logged In Users */}
       {user && (
         <section className="container mx-auto px-4 py-8">
           <Card className="p-8 text-center bg-gradient-to-r from-blue-500/10 to-blue-600/10 border-blue-500/20">
             <h2 className="text-2xl font-semibold text-slate-100 mb-4">
-환영합니다, {user.firstName || user.name}님! 🎉
+              환영합니다, {user.name}님! 🎉
             </h2>
             <p className="text-slate-300 mb-6">
-              이메일: <span className="font-medium text-blue-400">{user.emailAddress}</span>
+              이메일: <span className="font-medium text-blue-400">{user.email}</span>
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <div className="text-center">
-                <p className="text-sm text-slate-400">회사</p>
-                <p className="text-lg font-semibold text-slate-200">{user.accounts?.[0]?.companyName || 'N/A'}</p>
+                <p className="text-sm text-slate-400">역할</p>
+                <p className="text-lg font-semibold text-slate-200">{user.role}</p>
               </div>
               <div className="text-center">
                 <p className="text-sm text-slate-400">사용자 ID</p>
-                <p className="text-lg font-semibold text-slate-200">{user.userId}</p>
+                <p className="text-lg font-semibold text-slate-200">{user.id}</p>
               </div>
             </div>
-          </Card>
+</Card>
         </section>
       )}
 
-{/* Testimonials Section */}
+      {/* Testimonials Section */}
       <section className="container mx-auto px-4 py-16">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-slate-100 mb-4">

@@ -74,7 +74,8 @@ const navigate = useNavigate();
           dispatch(setUser(JSON.parse(JSON.stringify(user))));
         } else {
           // User is not authenticated
-          if (!isAuthPage) {
+// Allow access to homepage without authentication
+          if (!isAuthPage && currentPath !== '/') {
             navigate(
               currentPath.includes('/signup')
                 ? `/signup?redirect=${currentPath}`
@@ -82,7 +83,7 @@ const navigate = useNavigate();
                 ? `/login?redirect=${currentPath}`
                 : '/login'
             );
-          } else if (redirectPath) {
+          } else if (redirectPath && currentPath !== '/') {
             if (
               !['error', 'signup', 'login', 'callback', 'prompt-password', 'reset-password'].some((path) => currentPath.includes(path))
             ) {
@@ -92,8 +93,6 @@ const navigate = useNavigate();
             }
           } else if (isAuthPage) {
             navigate(currentPath);
-          } else {
-            navigate('/login');
           }
           dispatch(clearUser());
         }
