@@ -24,10 +24,10 @@ const MoneyInsightPage = () => {
   }, []);
 
   const loadPosts = async () => {
-    try {
+try {
       setLoading(true);
       setError(null);
-      const data = postService.getAll();
+      const data = await postService.getAll();
       setPosts(data);
     } catch (err) {
       setError(err.message || '포스트를 불러오는 중 오류가 발생했습니다.');
@@ -45,10 +45,12 @@ const MoneyInsightPage = () => {
   };
 
   const handleFormSubmit = async (formData) => {
-    try {
-      const newPost = postService.create(formData);
-      setPosts(prev => [newPost, ...prev]);
-      setShowCreateForm(false);
+try {
+      const newPost = await postService.create(formData);
+      if (newPost) {
+        setPosts(prev => [newPost, ...prev]);
+        setShowCreateForm(false);
+      }
     } catch (err) {
       throw err;
     }

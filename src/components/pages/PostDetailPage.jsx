@@ -26,7 +26,7 @@ const PostDetailPage = () => {
     try {
       setLoading(true);
       setError(null);
-      const postData = postService.getById(id);
+const postData = await postService.getById(id);
       
       if (!postData) {
         setError('포스트를 찾을 수 없습니다.');
@@ -42,10 +42,11 @@ const PostDetailPage = () => {
   };
 
   const canEdit = () => {
-    if (!user || !post) return false;
-    return user.is_admin || user.id === post.author_id;
+if (!user || !post) return false;
+    // Check if post.author_id is lookup object or direct ID
+    const postAuthorId = post.author_id?.Id || post.author_id;
+    return user.is_admin || user.userId === postAuthorId || user.id === postAuthorId;
   };
-
   const handleEdit = () => {
     setIsEditing(true);
   };
@@ -56,7 +57,7 @@ const PostDetailPage = () => {
     }
 
     try {
-      postService.delete(post.Id);
+await postService.delete(post.Id);
       navigate('/money-insight');
     } catch (err) {
       toast.error(err.message || '삭제 중 오류가 발생했습니다.');
@@ -65,9 +66,11 @@ const PostDetailPage = () => {
 
   const handleFormSubmit = async (formData) => {
     try {
-      const updatedPost = postService.update(post.Id, formData);
-      setPost(updatedPost);
-      setIsEditing(false);
+const updatedPost = await postService.update(post.Id, formData);
+      if (updatedPost) {
+        setPost(updatedPost);
+        setIsEditing(false);
+      }
     } catch (err) {
       throw err;
     }
@@ -167,8 +170,8 @@ const PostDetailPage = () => {
             
             <div className="flex items-center gap-4 text-slate-400">
               <div className="flex items-center gap-2">
-                <ApperIcon name="User" size={16} />
-                <span>{post.author_name}</span>
+<ApperIcon name="User" size={16} />
+                <span>{post.author_id?.Name || post.author_name}</span>
               </div>
               <div className="flex items-center gap-2">
                 <ApperIcon name="Calendar" size={16} />

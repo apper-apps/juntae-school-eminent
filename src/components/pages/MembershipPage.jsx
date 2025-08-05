@@ -29,7 +29,7 @@ const MembershipPage = () => {
       setLoading(true);
       setError(null);
       
-      const membershipLectures = lectureService.getByType('membership');
+const membershipLectures = await lectureService.getByType('membership');
       setLectures(membershipLectures);
       
       // Extract unique categories

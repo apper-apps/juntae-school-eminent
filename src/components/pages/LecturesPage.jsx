@@ -32,7 +32,7 @@ const LecturesPage = () => {
     try {
       setLoading(true);
       setError(null);
-      const data = lectureService.getAll();
+const data = await lectureService.getAll();
       setLectures(data);
     } catch (err) {
       setError('강의 목록을 불러오는데 실패했습니다.');
@@ -58,7 +58,7 @@ const LecturesPage = () => {
     }
 
     try {
-      lectureService.delete(lectureId);
+await lectureService.delete(lectureId);
       await loadLectures();
     } catch (err) {
       toast.error(err.message || '강의 삭제에 실패했습니다.');
@@ -67,10 +67,10 @@ const LecturesPage = () => {
 
   const handleFormSubmit = async (lectureData) => {
     try {
-      if (editingLecture) {
-        lectureService.update(editingLecture.Id, lectureData);
+if (editingLecture) {
+        await lectureService.update(editingLecture.Id, lectureData);
       } else {
-        lectureService.create(lectureData);
+        await lectureService.create(lectureData);
       }
       await loadLectures();
       setShowForm(false);

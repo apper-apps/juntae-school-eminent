@@ -1,186 +1,286 @@
 import { toast } from 'react-toastify';
 
-const mockReviews = [
-  {
-    Id: 1,
-    text: "준태스쿨 덕분에 투자에 대한 기초를 탄탄히 다질 수 있었어요. 복잡했던 개념들을 쉽게 설명해주셔서 정말 도움이 많이 되었습니다!",
-    author_id: "user_1",
-    author_name: "준태",
-    created_at: "2024-01-20T10:30:00.000Z",
-    likes: ["user_2", "temp_123"]
-  },
-  {
-    Id: 2,
-    text: "예산 관리 강의가 정말 실용적이었어요. 이제 가계부를 체계적으로 관리할 수 있게 되었습니다. 감사합니다!",
-    author_id: "temp_456",
-    author_name: "경제초보",
-    created_at: "2024-01-19T15:45:00.000Z",
-    likes: ["user_1"]
-  },
-  {
-    Id: 3,
-    text: "부동산 투자에 대해 막연한 두려움이 있었는데, 체계적인 분석 방법을 배워서 자신감이 생겼어요. 추천합니다!",
-    author_id: "user_2",
-    author_name: "김투자",
-    created_at: "2024-01-18T09:15:00.000Z",
-    likes: ["user_1", "temp_456", "temp_789"]
+class ReviewService {
+  constructor() {
+    // Initialize ApperClient with Project ID and Public Key
+    const { ApperClient } = window.ApperSDK;
+    this.apperClient = new ApperClient({
+      apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+      apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+    });
+    this.tableName = 'review';
   }
-];
 
-let reviewData = [...mockReviews];
-let nextId = Math.max(...reviewData.map(r => r.Id)) + 1;
+  async getAll() {
+    try {
+      const params = {
+        fields: [
+          { field: { Name: "Name" } },
+          { field: { Name: "text" } },
+          { field: { Name: "author_id" } },
+          { field: { Name: "author_name" } },
+          { field: { Name: "created_at" } },
+          { field: { Name: "likes" } }
+        ],
+        orderBy: [
+          {
+            fieldName: "created_at",
+            sorttype: "DESC"
+          }
+        ]
+      };
 
-// Generate or retrieve temporary user ID for anonymous users
-const getTempUserId = () => {
-  let tempId = localStorage.getItem('temp_user_id');
-  if (!tempId) {
-    tempId = 'temp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-    localStorage.setItem('temp_user_id', tempId);
+      const response = await this.apperClient.fetchRecords(this.tableName, params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        return [];
+      }
+
+      return response.data || [];
+    } catch (error) {
+      if (error?.response?.data?.message) {
+        console.error("Error fetching reviews:", error?.response?.data?.message);
+        toast.error(error?.response?.data?.message);
+      } else {
+        console.error(error.message);
+        toast.error('리뷰를 불러오는 중 오류가 발생했습니다.');
+      }
+      return [];
+    }
   }
-  return tempId;
-};
 
-export const reviewService = {
-  getAll: () => {
-    return [...reviewData].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-  },
+  async getById(id) {
+    try {
+      const params = {
+        fields: [
+          { field: { Name: "Name" } },
+          { field: { Name: "text" } },
+          { field: { Name: "author_id" } },
+          { field: { Name: "author_name" } },
+          { field: { Name: "created_at" } },
+          { field: { Name: "likes" } }
+        ]
+      };
 
-  getById: (id) => {
-    const numId = parseInt(id);
-    if (isNaN(numId)) {
-      throw new Error('유효하지 않은 ID입니다.');
+      const response = await this.apperClient.getRecordById(this.tableName, parseInt(id), params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        return null;
+      }
+
+      return response.data;
+    } catch (error) {
+      if (error?.response?.data?.message) {
+        console.error(`Error fetching review with ID ${id}:`, error?.response?.data?.message);
+      } else {
+        console.error(error.message);
+      }
+      return null;
     }
-    return reviewData.find(review => review.Id === numId) || null;
-  },
-
-  create: (reviewData, currentUser = null) => {
-    // Validate text length
-    if (!reviewData.text || reviewData.text.trim().length === 0) {
-      throw new Error('리뷰 내용을 입력해주세요.');
-    }
-    if (reviewData.text.length > 500) {
-      throw new Error('리뷰는 500자를 초과할 수 없습니다.');
-    }
-
-    let author_id, author_name;
-    
-    if (currentUser) {
-      // Logged in user
-      author_id = currentUser.id;
-      author_name = currentUser.name || currentUser.email.split('@')[0];
-    } else {
-      // Anonymous user
-      author_id = getTempUserId();
-      author_name = reviewData.author_name?.trim() || '익명';
-    }
-
-    const newReview = {
-      Id: nextId++,
-      text: reviewData.text.trim(),
-      author_id,
-      author_name,
-      created_at: new Date().toISOString(),
-      likes: []
-    };
-    
-    reviewData.push(newReview);
-    toast.success('리뷰가 성공적으로 등록되었습니다.');
-    return { ...newReview };
-  },
-
-  update: (id, updateData) => {
-    const numId = parseInt(id);
-    if (isNaN(numId)) {
-      throw new Error('유효하지 않은 ID입니다.');
-    }
-
-    const index = reviewData.findIndex(review => review.Id === numId);
-    if (index === -1) {
-      throw new Error('리뷰를 찾을 수 없습니다.');
-    }
-
-    // Validate text length if being updated
-    if (updateData.text && updateData.text.length > 500) {
-      throw new Error('리뷰는 500자를 초과할 수 없습니다.');
-    }
-
-    reviewData[index] = {
-      ...reviewData[index],
-      ...updateData,
-      Id: numId // Preserve original ID
-    };
-
-    toast.success('리뷰가 성공적으로 수정되었습니다.');
-    return { ...reviewData[index] };
-  },
-
-  delete: (id, currentUserId = null) => {
-    const numId = parseInt(id);
-    if (isNaN(numId)) {
-      throw new Error('유효하지 않은 ID입니다.');
-    }
-
-    const index = reviewData.findIndex(review => review.Id === numId);
-    if (index === -1) {
-      throw new Error('리뷰를 찾을 수 없습니다.');
-    }
-
-    const review = reviewData[index];
-    
-    // Check if user has permission to delete
-    const userIdToCheck = currentUserId || getTempUserId();
-    if (review.author_id !== userIdToCheck) {
-      throw new Error('본인이 작성한 리뷰만 삭제할 수 있습니다.');
-    }
-
-    const deletedReview = reviewData[index];
-    reviewData.splice(index, 1);
-    toast.success('리뷰가 성공적으로 삭제되었습니다.');
-    return deletedReview;
-  },
-
-  toggleLike: (id, currentUserId = null) => {
-    const numId = parseInt(id);
-    if (isNaN(numId)) {
-      throw new Error('유효하지 않은 ID입니다.');
-    }
-
-    const review = reviewData.find(review => review.Id === numId);
-    if (!review) {
-      throw new Error('리뷰를 찾을 수 없습니다.');
-    }
-
-    const userIdToUse = currentUserId || getTempUserId();
-    const likeIndex = review.likes.indexOf(userIdToUse);
-    
-    if (likeIndex === -1) {
-      // Add like
-      review.likes.push(userIdToUse);
-      toast.success('좋아요를 표시했습니다.');
-    } else {
-      // Remove like
-      review.likes.splice(likeIndex, 1);
-      toast.success('좋아요를 취소했습니다.');
-    }
-
-    return { ...review };
-  },
-
-  hasUserLiked: (reviewId, currentUserId = null) => {
-    const review = reviewData.find(r => r.Id === reviewId);
-    if (!review) return false;
-    
-    const userIdToCheck = currentUserId || getTempUserId();
-    return review.likes.includes(userIdToCheck);
-  },
-
-  canUserDelete: (reviewId, currentUserId = null) => {
-    const review = reviewData.find(r => r.Id === reviewId);
-    if (!review) return false;
-    
-    const userIdToCheck = currentUserId || getTempUserId();
-    return review.author_id === userIdToCheck;
   }
-};
+
+  async create(reviewData) {
+    try {
+      // Only include Updateable fields based on schema
+      const params = {
+        records: [{
+          Name: reviewData.text?.substring(0, 50) || '리뷰', // Use text excerpt as Name
+          text: reviewData.text,
+          author_id: reviewData.author_id,
+          author_name: reviewData.author_name,
+          created_at: new Date().toISOString(),
+          likes: reviewData.likes || ""
+        }]
+      };
+
+      const response = await this.apperClient.createRecord(this.tableName, params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        return null;
+      }
+
+      if (response.results) {
+        const successfulRecords = response.results.filter(result => result.success);
+        const failedRecords = response.results.filter(result => !result.success);
+        
+        if (failedRecords.length > 0) {
+          console.error(`Failed to create reviews ${failedRecords.length} records:${JSON.stringify(failedRecords)}`);
+          
+          failedRecords.forEach(record => {
+            record.errors?.forEach(error => {
+              toast.error(`${error.fieldLabel}: ${error.message}`);
+            });
+            if (record.message) toast.error(record.message);
+          });
+        }
+
+        if (successfulRecords.length > 0) {
+          toast.success('리뷰가 성공적으로 등록되었습니다.');
+          return successfulRecords[0].data;
+        }
+      }
+    } catch (error) {
+      if (error?.response?.data?.message) {
+        console.error("Error creating review:", error?.response?.data?.message);
+        toast.error(error?.response?.data?.message);
+      } else {
+        console.error(error.message);
+        toast.error('리뷰 등록 중 오류가 발생했습니다.');
+      }
+    }
+    return null;
+  }
+
+  async update(id, updateData) {
+    try {
+      // Only include Updateable fields
+      const params = {
+        records: [{
+          Id: parseInt(id),
+          Name: updateData.text?.substring(0, 50) || updateData.Name,
+          ...(updateData.text && { text: updateData.text }),
+          ...(updateData.author_id && { author_id: updateData.author_id }),
+          ...(updateData.author_name && { author_name: updateData.author_name }),
+          ...(updateData.likes !== undefined && { likes: updateData.likes })
+        }]
+      };
+
+      const response = await this.apperClient.updateRecord(this.tableName, params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        return null;
+      }
+
+      if (response.results) {
+        const successfulUpdates = response.results.filter(result => result.success);
+        const failedUpdates = response.results.filter(result => !result.success);
+        
+        if (failedUpdates.length > 0) {
+          console.error(`Failed to update reviews ${failedUpdates.length} records:${JSON.stringify(failedUpdates)}`);
+          
+          failedUpdates.forEach(record => {
+            record.errors?.forEach(error => {
+              toast.error(`${error.fieldLabel}: ${error.message}`);
+            });
+            if (record.message) toast.error(record.message);
+          });
+        }
+
+        if (successfulUpdates.length > 0) {
+          toast.success('리뷰가 성공적으로 수정되었습니다.');
+          return successfulUpdates[0].data;
+        }
+      }
+    } catch (error) {
+      if (error?.response?.data?.message) {
+        console.error("Error updating review:", error?.response?.data?.message);
+        toast.error(error?.response?.data?.message);
+      } else {
+        console.error(error.message);
+        toast.error('리뷰 수정 중 오류가 발생했습니다.');
+      }
+    }
+    return null;
+  }
+
+  async delete(id) {
+    try {
+      const params = {
+        RecordIds: [parseInt(id)]
+      };
+
+      const response = await this.apperClient.deleteRecord(this.tableName, params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        return false;
+      }
+
+      if (response.results) {
+        const successfulDeletions = response.results.filter(result => result.success);
+        const failedDeletions = response.results.filter(result => !result.success);
+        
+        if (failedDeletions.length > 0) {
+          console.error(`Failed to delete reviews ${failedDeletions.length} records:${JSON.stringify(failedDeletions)}`);
+          
+          failedDeletions.forEach(record => {
+            if (record.message) toast.error(record.message);
+          });
+        }
+
+        if (successfulDeletions.length > 0) {
+          toast.success('리뷰가 성공적으로 삭제되었습니다.');
+          return true;
+        }
+      }
+    } catch (error) {
+      if (error?.response?.data?.message) {
+        console.error("Error deleting review:", error?.response?.data?.message);
+        toast.error(error?.response?.data?.message);
+      } else {
+        console.error(error.message);
+        toast.error('리뷰 삭제 중 오류가 발생했습니다.');
+      }
+    }
+    return false;
+  }
+
+  async toggleLike(id, userId) {
+    try {
+      // Get current review data
+      const review = await this.getById(id);
+      if (!review) {
+        toast.error('리뷰를 찾을 수 없습니다.');
+        return null;
+      }
+
+      // Parse current likes (MultiPicklist stored as comma-separated string)
+      const currentLikes = review.likes ? review.likes.split(',').filter(like => like.trim()) : [];
+      let newLikes;
+
+      if (currentLikes.includes(userId)) {
+        // Remove like
+        newLikes = currentLikes.filter(like => like !== userId);
+        toast.success('좋아요를 취소했습니다.');
+      } else {
+        // Add like
+        newLikes = [...currentLikes, userId];
+        toast.success('좋아요를 표시했습니다.');
+      }
+
+      // Update with new likes
+      const updatedReview = await this.update(id, {
+        likes: newLikes.join(',')
+      });
+
+      return updatedReview;
+    } catch (error) {
+      console.error('Toggle like error:', error);
+      toast.error('좋아요 처리 중 오류가 발생했습니다.');
+      return null;
+    }
+  }
+
+  hasUserLiked(review, userId) {
+    if (!review?.likes || !userId) return false;
+    const likes = review.likes.split(',').filter(like => like.trim());
+    return likes.includes(userId);
+  }
+
+  canUserDelete(review, userId) {
+    if (!review || !userId) return false;
+    return review.author_id === userId;
+  }
+}
+
+export const reviewService = new ReviewService();
 
 export default reviewService;

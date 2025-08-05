@@ -29,7 +29,7 @@ const MasterPage = () => {
       try {
         setLoading(true);
         const cohortToUse = courseType === "기수별 과정" ? selectedCohort : 0;
-        const data = lectureService.getMasterLectures(courseType, cohortToUse);
+const data = await lectureService.getMasterLectures(courseType, cohortToUse);
         setLectures(data);
       } catch (error) {
         console.error("Failed to fetch lectures:", error);

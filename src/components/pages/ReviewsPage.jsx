@@ -30,7 +30,7 @@ const ReviewsPage = () => {
     try {
       setLoading(true);
       setError(null);
-      const data = reviewService.getAll();
+const data = await reviewService.getAll();
       setReviews(data);
     } catch (err) {
       setError('리뷰를 불러오는 중 오류가 발생했습니다.');
@@ -61,9 +61,18 @@ const ReviewsPage = () => {
 
     try {
       setSubmitting(true);
-      const newReview = reviewService.create(formData, user);
-      setReviews(prev => [newReview, ...prev]);
-      setFormData({ text: '', author_name: '' });
+// Prepare review data with current user info
+      const reviewData = {
+        ...formData,
+        author_id: user?.userId || user?.id || 'anonymous',
+        author_name: user?.firstName || user?.name || formData.author_name || '익명'
+      };
+      
+      const newReview = await reviewService.create(reviewData);
+      if (newReview) {
+        setReviews(prev => [newReview, ...prev]);
+        setFormData({ text: '', author_name: '' });
+      }
     } catch (err) {
       console.error('Submit review error:', err);
     } finally {
@@ -73,10 +82,12 @@ const ReviewsPage = () => {
 
   const handleLike = async (reviewId) => {
     try {
-      const updatedReview = reviewService.toggleLike(reviewId, user?.id);
-      setReviews(prev => prev.map(r => 
-        r.Id === reviewId ? updatedReview : r
-      ));
+const updatedReview = await reviewService.toggleLike(reviewId, user?.userId || user?.id || 'anonymous');
+      if (updatedReview) {
+        setReviews(prev => prev.map(r => 
+          r.Id === reviewId ? updatedReview : r
+        ));
+      }
     } catch (err) {
       console.error('Toggle like error:', err);
     }
@@ -88,8 +99,10 @@ const ReviewsPage = () => {
     }
 
     try {
-      reviewService.delete(reviewId, user?.id);
-      setReviews(prev => prev.filter(r => r.Id !== reviewId));
+const success = await reviewService.delete(reviewId);
+      if (success) {
+        setReviews(prev => prev.filter(r => r.Id !== reviewId));
+      }
     } catch (err) {
       console.error('Delete review error:', err);
     }
@@ -205,8 +218,8 @@ const ReviewsPage = () => {
             />
           ) : (
             reviews.map(review => {
-              const hasLiked = reviewService.hasUserLiked(review.Id, user?.id);
-              const canDelete = reviewService.canUserDelete(review.Id, user?.id);
+const hasLiked = reviewService.hasUserLiked(review, user?.userId || user?.id || 'anonymous');
+              const canDelete = reviewService.canUserDelete(review, user?.userId || user?.id || 'anonymous');
               
               return (
                 <Card key={review.Id} className="p-6">
@@ -257,8 +270,8 @@ const ReviewsPage = () => {
                           size={18} 
                           className={hasLiked ? 'fill-current' : ''}
                         />
-                        <span className="text-sm font-medium">
-                          {review.likes.length}
+<span className="text-sm font-medium">
+                          {review.likes ? review.likes.split(',').filter(like => like.trim()).length : 0}
                         </span>
                       </button>
                     </div>

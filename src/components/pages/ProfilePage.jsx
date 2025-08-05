@@ -1,12 +1,16 @@
-import { useAuth } from "@/hooks/useAuth";
+import React, { useContext } from "react";
+import { useSelector } from "react-redux";
+import { AuthContext } from "../../App";
 import ApperIcon from "@/components/ApperIcon";
+import PlaceholderCard from "@/components/molecules/PlaceholderCard";
 import Button from "@/components/atoms/Button";
 import Card from "@/components/atoms/Card";
-import PlaceholderCard from "@/components/molecules/PlaceholderCard";
+import { useAuth } from "@/hooks/useAuth";
 
 const ProfilePage = () => {
-  const { user, logout } = useAuth();
-
+  
+  const { logout } = useContext(AuthContext);
+  const { user } = useSelector((state) => state.user);
   if (!user) {
     return (
       <div className="min-h-screen bg-slate-950">
@@ -39,8 +43,8 @@ const ProfilePage = () => {
                 <ApperIcon name="User" size={24} className="text-white" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold text-slate-100">{user.name}</h2>
-                <p className="text-slate-400">{user.email}</p>
+<h2 className="text-xl font-semibold text-slate-100">{user.firstName} {user.lastName}</h2>
+                <p className="text-slate-400">{user.emailAddress}</p>
               </div>
             </div>
 
@@ -49,7 +53,7 @@ const ProfilePage = () => {
                 <label className="text-sm font-medium text-slate-300">회원 등급</label>
                 <div className="flex items-center space-x-2">
                   <span className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-sm font-medium">
-                    {user.role}
+사용자
                   </span>
                 </div>
               </div>
@@ -58,30 +62,28 @@ const ProfilePage = () => {
                 <label className="text-sm font-medium text-slate-300">관리자 권한</label>
                 <div className="flex items-center space-x-2">
                   <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    user.is_admin 
-                      ? "bg-green-500/20 text-green-400" 
-                      : "bg-slate-500/20 text-slate-400"
+"bg-slate-500/20 text-slate-400"
                   }`}>
-                    {user.is_admin ? "예" : "아니오"}
+                    일반 사용자
                   </span>
                 </div>
               </div>
 
               <div className="space-y-2">
                 <label className="text-sm font-medium text-slate-300">멤버십 코호트</label>
-                <p className="text-slate-100 font-semibold">{user.membership_cohort}</p>
+<p className="text-slate-100 font-semibold">{user.companyId || 'N/A'}</p>
               </div>
 
               <div className="space-y-2">
                 <label className="text-sm font-medium text-slate-300">마스터 코호트</label>
-                <p className="text-slate-100 font-semibold">{user.master_cohort}</p>
+<p className="text-slate-100 font-semibold">{user.userId}</p>
               </div>
             </div>
 
             <div className="space-y-2 mb-8">
               <label className="text-sm font-medium text-slate-300">가입일</label>
               <p className="text-slate-400">
-                {new Date(user.created_at).toLocaleDateString("ko-KR", {
+{new Date().toLocaleDateString("ko-KR", {
                   year: "numeric",
                   month: "long",
                   day: "numeric"

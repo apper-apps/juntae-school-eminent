@@ -1,11 +1,13 @@
-import { useAuth } from "@/hooks/useAuth";
+import React from "react";
+import { useSelector } from "react-redux";
 import ApperIcon from "@/components/ApperIcon";
+import PlaceholderCard from "@/components/molecules/PlaceholderCard";
 import Button from "@/components/atoms/Button";
 import Card from "@/components/atoms/Card";
-import PlaceholderCard from "@/components/molecules/PlaceholderCard";
+import { useAuth } from "@/hooks/useAuth";
 
 const HomePage = () => {
-  const { user, openAuthModal } = useAuth();
+const { user } = useSelector((state) => state.user);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900">
@@ -105,19 +107,19 @@ const HomePage = () => {
         <section className="container mx-auto px-4 py-8">
           <Card className="p-8 text-center bg-gradient-to-r from-blue-500/10 to-blue-600/10 border-blue-500/20">
             <h2 className="text-2xl font-semibold text-slate-100 mb-4">
-              환영합니다, {user.name}님! 🎉
+환영합니다, {user.firstName || user.name}님! 🎉
             </h2>
             <p className="text-slate-300 mb-6">
-              현재 회원 등급: <span className="font-medium text-blue-400">{user.role}</span>
+              이메일: <span className="font-medium text-blue-400">{user.emailAddress}</span>
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <div className="text-center">
-                <p className="text-sm text-slate-400">멤버십 코호트</p>
-                <p className="text-lg font-semibold text-slate-200">{user.membership_cohort}</p>
+                <p className="text-sm text-slate-400">회사</p>
+                <p className="text-lg font-semibold text-slate-200">{user.accounts?.[0]?.companyName || 'N/A'}</p>
               </div>
               <div className="text-center">
-                <p className="text-sm text-slate-400">마스터 코호트</p>
-                <p className="text-lg font-semibold text-slate-200">{user.master_cohort}</p>
+                <p className="text-sm text-slate-400">사용자 ID</p>
+                <p className="text-lg font-semibold text-slate-200">{user.userId}</p>
               </div>
             </div>
           </Card>
