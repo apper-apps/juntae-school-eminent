@@ -1,17 +1,18 @@
+import "@/index.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-import { AuthProvider } from "@/hooks/useAuth";
 import React from "react";
-import "@/index.css";
 import AuthModal from "@/components/organisms/AuthModal";
 import Layout from "@/components/organisms/Layout";
 import MoneyInsightPage from "@/components/pages/MoneyInsightPage";
+import PostDetailPage from "@/components/pages/PostDetailPage";
 import MasterPage from "@/components/pages/MasterPage";
 import HomePage from "@/components/pages/HomePage";
 import MembershipPage from "@/components/pages/MembershipPage";
-import ReviewsPage from "@/components/pages/ReviewsPage";
-import ProfilePage from "@/components/pages/ProfilePage";
 import LecturesPage from "@/components/pages/LecturesPage";
+import ProfilePage from "@/components/pages/ProfilePage";
+import ReviewsPage from "@/components/pages/ReviewsPage";
+import { AuthProvider } from "@/hooks/useAuth";
 function App() {
   return (
     <BrowserRouter>
@@ -22,9 +23,10 @@ function App() {
               <Route path="/" element={<HomePage />} />
               <Route path="/membership" element={<MembershipPage />} />
               <Route path="/master" element={<MasterPage />} />
-              <Route path="/money-insight" element={<MoneyInsightPage />} />
+<Route path="/money-insight" element={<MoneyInsightPage />} />
+              <Route path="/money-insight/:id" element={<PostDetailPage />} />
               <Route path="/reviews" element={<ReviewsPage />} />
-<Route path="/profile" element={<ProfilePage />} />
+              <Route path="/profile" element={<ProfilePage />} />
               <Route path="/lectures" element={<LecturesPage />} />
             </Routes>
           </Layout>
