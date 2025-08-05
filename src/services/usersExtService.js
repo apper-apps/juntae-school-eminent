@@ -270,10 +270,20 @@ class UsersExtService {
     return false;
   }
 
-  async ensureUserRecord(currentUser) {
+async ensureUserRecord(currentUser) {
     try {
-      if (!currentUser?.id || !currentUser?.email) {
-        console.error('Invalid user data provided to ensureUserRecord');
+      // Handle both possible property names from Apper SDK (id or userId)
+      const userId = currentUser?.id || currentUser?.userId;
+      const userEmail = currentUser?.email || currentUser?.emailAddress;
+      
+      if (!userId || !userEmail) {
+        console.error('Invalid user data provided to ensureUserRecord', {
+          hasId: !!currentUser?.id,
+          hasUserId: !!currentUser?.userId,
+          hasEmail: !!currentUser?.email,
+          hasEmailAddress: !!currentUser?.emailAddress,
+          userKeys: currentUser ? Object.keys(currentUser) : 'null'
+        });
         return null;
       }
 
@@ -289,9 +299,9 @@ class UsersExtService {
       const isFirstUser = allUsers.length === 0;
 
       // Create new user record
-      const newUserData = {
-        auth_id: currentUser.id,
-        email: currentUser.email,
+const newUserData = {
+        auth_id: userId,
+        email: userEmail,
         role: "free",
         is_admin: isFirstUser, // First user becomes admin
         membership_cohort: 0,
